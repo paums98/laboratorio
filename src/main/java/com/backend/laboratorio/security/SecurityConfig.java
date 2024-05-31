@@ -83,7 +83,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth.dispatcherTypeMatchers(FORWARD, ERROR).permitAll()
                                 .requestMatchers("/auth/**").permitAll()
-                                //.requestMatchers(HttpMethod.GET, "/api/experimentos").hasAnyRole(ERole.INVESTIGADOR.name(), ERole.BECARIO.name())
+                                .requestMatchers("/swagger-ui/**").permitAll()
+                                .requestMatchers("/v3/api-docs/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/experimentos").hasAnyRole(ERole.INVESTIGADOR.name(), ERole.BECARIO.name())
                                 .requestMatchers("/api/experimentos/").hasRole(ERole.ADMIN.name())
                                 //.requestMatchers(HttpMethod.POST, "/api/books/**").hasAnyRole(ERole.GUEST.name(), ERole.USER.name())
                                 .anyRequest().authenticated()
