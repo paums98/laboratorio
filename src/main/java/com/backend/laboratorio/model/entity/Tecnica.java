@@ -24,7 +24,7 @@ public class Tecnica {
     @Column
     private String descripcion;
 
-    @OneToMany(mappedBy = "tecnica")
+    @OneToMany(mappedBy = "tecnica", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     public List<Utiliza> utilizaList;
 
 }

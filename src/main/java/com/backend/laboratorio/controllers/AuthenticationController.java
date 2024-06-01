@@ -2,6 +2,7 @@ package com.backend.laboratorio.controllers;
 
 import com.backend.laboratorio.dto.User.Authentication.LoginUserDTO;
 import com.backend.laboratorio.dto.User.Authentication.RegisterUserDTO;
+import com.backend.laboratorio.dto.User.TokenDTO;
 import com.backend.laboratorio.exception.Response;
 import com.backend.laboratorio.mappers.User.UserMapper;
 import com.backend.laboratorio.model.entity.User;
@@ -10,6 +11,7 @@ import com.backend.laboratorio.model.service.User.IUserService;
 import com.backend.laboratorio.security.JwtTokenProvider;
 
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping("/auth")
 @RestController
+@Tag(name = "Autenticación", description = "Para iniciar sesión")
 public class AuthenticationController {
 
     @Autowired
@@ -47,7 +50,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> authenticate(@RequestBody LoginUserDTO loginUserDto)
+    public ResponseEntity<TokenDTO> authenticate(@RequestBody LoginUserDTO loginUserDto)
     {
         User loginUser = userMapper.fromDTO(loginUserDto);
 
@@ -55,9 +58,11 @@ public class AuthenticationController {
 
         String jwtToken = jwtTokenProvider.generateToken(authenticatedUser);
 
+        TokenDTO dto = new TokenDTO(jwtToken);
+
         //LoginResponse loginResponse = new LoginResponse().setToken(jwtToken).setExpiresIn(jwtService.getExpirationTime());
 
-        return ResponseEntity.ok(jwtToken);
+        return ResponseEntity.ok(dto);
     }
 
 }

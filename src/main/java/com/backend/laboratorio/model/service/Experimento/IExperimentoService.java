@@ -1,6 +1,7 @@
 package com.backend.laboratorio.model.service.Experimento;
 
 import com.backend.laboratorio.model.entity.Experimento;
+import com.backend.laboratorio.model.entity.Utiliza;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -18,5 +19,9 @@ public interface IExperimentoService {
     void deleteExperimento(long id) throws Exception;
 
     List<Integer> findImagenesByExperimentoAndTecnica (long tecnicaId, long experimentoId);
+
+    Utiliza addUtiliza(Utiliza utiliza);
+
+    void addCientificoToExperimento(long experimentoId, long cientificoId);
 
 }

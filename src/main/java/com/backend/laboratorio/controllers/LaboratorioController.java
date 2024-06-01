@@ -6,6 +6,7 @@ import com.backend.laboratorio.mappers.Experimento.ExperimentoMapper;
 import com.backend.laboratorio.mappers.Tecnica.TecnicaMapper;
 import com.backend.laboratorio.model.entity.Experimento;
 import com.backend.laboratorio.model.entity.Tecnica;
+import com.backend.laboratorio.model.entity.Utiliza;
 import com.backend.laboratorio.model.service.Experimento.IExperimentoService;
 import com.backend.laboratorio.model.service.Tecnica.ITecnicaService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -98,6 +99,25 @@ public class LaboratorioController {
 
     // TÉCNICAS
 
+    @Operation(summary = "Obtiene todas las técnicas")
+    @GetMapping("/tecnicas")
+    public ResponseEntity<List<TecnicaDTO>> findAll(){
+
+        List<Tecnica> tecnicas = tecnicaService.findAll();
+        List<TecnicaDTO> tecnicasDTO = tecnicaMapper.toDTO(tecnicas);
+        return new ResponseEntity<>(tecnicasDTO, HttpStatus.OK);
+
+    }
+
+    @Operation(summary = "Obtiene una técnica por ID")
+    @GetMapping("/tecnica/{id}")
+    public ResponseEntity<TecnicaDTO> getTecnica(
+            @Parameter(description = "ID del experimento a obtener") @PathVariable long id) {
+        Tecnica tecnica = tecnicaService.findById(id);
+        TecnicaDTO tecnicaDTO = tecnicaMapper.toDTO(tecnica);
+        return new ResponseEntity<>(tecnicaDTO, HttpStatus.OK);
+    }
+
     @Operation(summary = "Crea una nueva técnica")
     @PostMapping("/tecnicas")
     public ResponseEntity<Tecnica> createTecnica(
@@ -105,6 +125,36 @@ public class LaboratorioController {
         Tecnica tecnica = tecnicaMapper.fromDTO(tecnicaDTO);
         Tecnica newTecnica = tecnicaService.addTecnica(tecnica);
         return new ResponseEntity<>(newTecnica, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Actualiza una técnica existente")
+    @PutMapping("/técnicas/{id}")
+    public ResponseEntity<?> updateTecnica(
+            @Parameter(description = "ID de la técnica a actualizar") @PathVariable long id,
+            @Parameter(description = "Datos nuevos de la técnica") @RequestBody TecnicaDTO tecnicaDTO) {
+        Tecnica tecnica = null;
+        Map<String, Object> errores = new HashMap<>();
+
+        try {
+            Tecnica newTecnica = tecnicaMapper.fromDTO(tecnicaDTO);
+            tecnica = tecnicaService.modifyTecnica(id, newTecnica);
+        } catch (Exception ex) {
+            errores.put("mensaje", "Error al modificar la técnica");
+            errores.put("detalle", ex.getMessage());
+            return new ResponseEntity<>(errores, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return new ResponseEntity<>(tecnica, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Elimina una técnica por ID")
+    @DeleteMapping("/tecnicas/{id}")
+    public ResponseEntity<Map<String, String>> deleteTecnica(
+            @Parameter(description = "ID de la técnica a eliminar") @PathVariable long id) throws Exception {
+        tecnicaService.deleteTecnica(id);
+        Map<String, String> response = new HashMap<>();
+        response.put("mensaje", "Técnica borrada correctamente");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Operation(summary = "Obtiene las técnicas asociadas a un experimento")
@@ -115,4 +165,27 @@ public class LaboratorioController {
         List<TecnicaDTO> tecnicasDTO = tecnicaMapper.toDTO(tecnicas);
         return new ResponseEntity<>(tecnicasDTO, HttpStatus.OK);
     }
+
+    // AÑADIR RELACIÓN DE TÉCNICA Y USUARIO
+
+    @Operation(summary = "Crea una nueva relación entre experimento y técnica")
+    @PostMapping("/utiliza")
+    public ResponseEntity<Utiliza> createUtiliza(@RequestBody Utiliza utiliza){
+
+        Utiliza newUtiliza = experimentoService.addUtiliza(utiliza);
+
+        return new ResponseEntity<>(newUtiliza, HttpStatus.OK);
+
+    }
+
+    // OBTENER IMÁGENES
+    @Operation(summary = "Obtiene las imágenes de un experimento y una técnica")
+    @GetMapping("/imagenes")
+    public ResponseEntity<List<Integer>> getImagenesExperimentoTecnica(long idTecnica, long idExperimento){
+
+        List<Integer> listaImagenes = experimentoService.findImagenesByExperimentoAndTecnica(idTecnica, idExperimento);
+        return  new ResponseEntity<>(listaImagenes, HttpStatus.OK);
+
+    }
+
 }

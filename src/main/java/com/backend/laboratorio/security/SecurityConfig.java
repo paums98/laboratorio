@@ -85,8 +85,8 @@ public class SecurityConfig {
                                 .requestMatchers("/auth/**").permitAll()
                                 .requestMatchers("/swagger-ui/**").permitAll()
                                 .requestMatchers("/v3/api-docs/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/experimentos").hasAnyRole(ERole.INVESTIGADOR.name(), ERole.BECARIO.name())
-                                .requestMatchers("/api/experimentos/").hasRole(ERole.ADMIN.name())
+                                .requestMatchers("/api/experimentos").hasAnyRole(ERole.INVESTIGADOR.name(), ERole.BECARIO.name(), ERole.ADMIN.name())
+                                .requestMatchers("/api/experimentos/**").hasAnyRole(ERole.ADMIN.name())
                                 //.requestMatchers(HttpMethod.POST, "/api/books/**").hasAnyRole(ERole.GUEST.name(), ERole.USER.name())
                                 .anyRequest().authenticated()
                 );

@@ -34,12 +34,12 @@ public class Experimento {
     @Column
     private String experimentoPasado;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "realiza",
         joinColumns = @JoinColumn(name = "experimento_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "cientifico_id", referencedColumnName = "id"))
     private List<Cientifico> cientificos;
 
-    @OneToMany(mappedBy = "experimento")
+    @OneToMany(mappedBy = "experimento", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE, orphanRemoval = true)
     public List<Utiliza> utilizaList;
 }

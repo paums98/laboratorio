@@ -21,7 +21,7 @@ public class Cientifico {
     @Column
     private String nombre;
 
-    @ManyToMany(mappedBy = "cientificos")
+    @ManyToMany(mappedBy = "cientificos", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Experimento> experimentos;
 
 }

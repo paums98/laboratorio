@@ -1,7 +1,9 @@
 package com.backend.laboratorio.model.service.Experimento;
 
 import com.backend.laboratorio.model.entity.Experimento;
+import com.backend.laboratorio.model.entity.Utiliza;
 import com.backend.laboratorio.model.repository.IExperimentoRepository;
+import com.backend.laboratorio.model.repository.UsuRol.IUtilizaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,9 @@ public class ExperimentoService implements IExperimentoService{
 
     @Autowired
     private IExperimentoRepository experimentoRepository;
+
+    @Autowired
+    private IUtilizaRepository utilizaRepository;
 
     @Override
     public List<Experimento> findAll() {
@@ -42,7 +47,7 @@ public class ExperimentoService implements IExperimentoService{
     @Override
     public void deleteExperimento(long id) throws Exception {
 
-        Experimento experimento = experimentoRepository.findById(id).orElseThrow(() -> new Exception("Error actualizar Experimento: "+id));
+        Experimento experimento = experimentoRepository.findById(id).orElseThrow(() -> new Exception("Error eliminar Experimento: "+id));
 
         experimentoRepository.delete(experimento);
 
@@ -52,5 +57,15 @@ public class ExperimentoService implements IExperimentoService{
     @Override
     public List<Integer> findImagenesByExperimentoAndTecnica(long tecnicaId, long experimentoId) {
         return experimentoRepository.findImagenesByExperimentoAndTecnica(tecnicaId, experimentoId);
+    }
+
+    @Override
+    public Utiliza addUtiliza(Utiliza utiliza) {
+        return utilizaRepository.save(utiliza);
+    }
+
+    @Override
+    public void addCientificoToExperimento(long experimentoId, long cientificoId) {
+        experimentoRepository.addCientificoToExperimento(experimentoId, cientificoId);
     }
 }
