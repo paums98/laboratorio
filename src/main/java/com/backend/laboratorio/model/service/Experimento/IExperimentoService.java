@@ -18,10 +18,13 @@ public interface IExperimentoService {
 
     void deleteExperimento(long id) throws Exception;
 
-    List<Integer> findImagenesByExperimentoAndTecnica (long tecnicaId, long experimentoId);
-
     Utiliza addUtiliza(Utiliza utiliza);
 
     void addCientificoToExperimento(long experimentoId, long cientificoId);
 
+    public Experimento agregarTecnica(Long experimentoId, Long tecnicaId);
+
+    public List<String> getImagenesByExperimentoAndTecnica(Long experimentoId, Long tecnicaId);
+
+    public Experimento agregarImagen(Long experimentoId, Long tecnicaId, String imagen);
 }

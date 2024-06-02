@@ -1,14 +1,14 @@
 package com.backend.laboratorio.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -40,6 +40,6 @@ public class Experimento {
         inverseJoinColumns = @JoinColumn(name = "cientifico_id", referencedColumnName = "id"))
     private List<Cientifico> cientificos;
 
-    @OneToMany(mappedBy = "experimento", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "experimento", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     public List<Utiliza> utilizaList;
 }

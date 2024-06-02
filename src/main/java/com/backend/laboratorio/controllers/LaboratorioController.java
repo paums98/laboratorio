@@ -97,6 +97,17 @@ public class LaboratorioController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(summary = "Añadir una técnica a un experimento")
+    @PostMapping("/experimentos/{experimentoId}/tecnicas/{tecnicaId}")
+    public ResponseEntity<ExperimentoDTO> agregarTecnica(
+            @Parameter(description = "ID del experimento") @PathVariable Long experimentoId,
+            @Parameter(description = "ID de la técnica") @PathVariable Long tecnicaId) {
+        Experimento experimento = experimentoService.agregarTecnica(experimentoId, tecnicaId);
+        ExperimentoDTO experimentoDTO = experimentoMapper.toDTO(experimento);
+        return new ResponseEntity<>(experimentoDTO, HttpStatus.OK);
+    }
+
+
     // TÉCNICAS
 
     @Operation(summary = "Obtiene todas las técnicas")
@@ -181,11 +192,25 @@ public class LaboratorioController {
     // OBTENER IMÁGENES
     @Operation(summary = "Obtiene las imágenes de un experimento y una técnica")
     @GetMapping("/imagenes")
-    public ResponseEntity<List<Integer>> getImagenesExperimentoTecnica(long idTecnica, long idExperimento){
+    public ResponseEntity<List<String>> getImagenesByExperimentoAndTecnica(@RequestParam Long experimentoId, @RequestParam Long tecnicaId) {
 
-        List<Integer> listaImagenes = experimentoService.findImagenesByExperimentoAndTecnica(idTecnica, idExperimento);
-        return  new ResponseEntity<>(listaImagenes, HttpStatus.OK);
+        List<String> imagenes = experimentoService.getImagenesByExperimentoAndTecnica(experimentoId, tecnicaId);
 
+        return new ResponseEntity<>(imagenes, HttpStatus.OK);
     }
+
+    // AÑADIR IMÁGENES
+
+    @Operation(summary = "Añadir una imagen a un experimento y una técnica")
+    @PostMapping("/experimentos/{experimentoId}/tecnicas/{tecnicaId}/imagenes")
+    public ResponseEntity<ExperimentoDTO> agregarImagen(
+            @Parameter(description = "ID del experimento") @PathVariable Long experimentoId,
+            @Parameter(description = "ID de la técnica") @PathVariable Long tecnicaId,
+            @Parameter(description = "URL de la imagen") @RequestParam String imagen) {
+        Experimento experimento = experimentoService.agregarImagen(experimentoId, tecnicaId, imagen);
+        ExperimentoDTO experimentoDTO = experimentoMapper.toDTO(experimento);
+        return new ResponseEntity<>(experimentoDTO, HttpStatus.OK);
+    }
+
 
 }
