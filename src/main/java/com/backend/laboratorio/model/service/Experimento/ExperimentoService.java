@@ -1,5 +1,9 @@
 package com.backend.laboratorio.model.service.Experimento;
 
+import com.backend.laboratorio.exception.Experimento.ExperimentoNotFoundException;
+import com.backend.laboratorio.exception.Tecnica.TecnicaNotFoundException;
+import com.backend.laboratorio.exception.Utiliza.RelacionExistenteException;
+import com.backend.laboratorio.exception.Utiliza.UtilizaNotFoundException;
 import com.backend.laboratorio.model.entity.Experimento;
 import com.backend.laboratorio.model.entity.Tecnica;
 import com.backend.laboratorio.model.entity.Utiliza;
@@ -33,7 +37,7 @@ public class ExperimentoService implements IExperimentoService {
 
     @Override
     public Experimento findById(long id) {
-        return experimentoRepository.findById(id).orElse(null);
+        return experimentoRepository.findById(id).orElseThrow(() -> new  ExperimentoNotFoundException(id));
     }
 
     @Override
@@ -76,22 +80,25 @@ public class ExperimentoService implements IExperimentoService {
     @Transactional
     public Experimento agregarTecnica(Long experimentoId, Long tecnicaId) {
         Experimento experimento = experimentoRepository.findById(experimentoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Experimento no encontrado"));
+                .orElseThrow(() -> new ExperimentoNotFoundException("Experimento no encontrado"));
         Tecnica tecnica = tecnicaRepository.findById(tecnicaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Tecnica no encontrada"));
+                .orElseThrow(() -> new TecnicaNotFoundException("Técnica no encontrada"));
 
         boolean existeRelacion = experimento.getUtilizaList().stream()
                 .anyMatch(utiliza -> utiliza.getTecnica().equals(tecnica));
 
-        if (!existeRelacion) {
-            Utiliza utiliza = new Utiliza();
-            utiliza.setExperimento(experimento);
-            utiliza.setTecnica(tecnica);
-            utilizaRepository.save(utiliza);
+        if (existeRelacion) {
+            throw new RelacionExistenteException(experimentoId, tecnicaId);
         }
+
+        Utiliza utiliza = new Utiliza();
+        utiliza.setExperimento(experimento);
+        utiliza.setTecnica(tecnica);
+        utilizaRepository.save(utiliza);
 
         return experimento;
     }
+
 
     public List<String> getImagenesByExperimentoAndTecnica(Long experimentoId, Long tecnicaId) {
 
@@ -104,11 +111,10 @@ public class ExperimentoService implements IExperimentoService {
     @Transactional
     @Override
     public Experimento agregarImagen(Long experimentoId, Long tecnicaId, String imagen) {
-
         Experimento experimento = experimentoRepository.findById(experimentoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Experimento no encontrado"));
+                .orElseThrow(() -> new ExperimentoNotFoundException("Experimento no encontrado"));
         Tecnica tecnica = tecnicaRepository.findById(tecnicaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Tecnica no encontrada"));
+                .orElseThrow(() -> new TecnicaNotFoundException("Técnica no encontrada"));
 
         Utiliza utiliza = utilizaRepository.findByExperimentoIdAndTecnicaId(experimentoId, tecnicaId);
         if (utiliza == null) {
@@ -121,5 +127,25 @@ public class ExperimentoService implements IExperimentoService {
 
         return experimento;
     }
+
+    @Transactional
+    @Override
+    public Experimento eliminarImagen(Long experimentoId, Long tecnicaId, String imagen) {
+        Experimento experimento = experimentoRepository.findById(experimentoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Experimento no encontrado"));
+        Tecnica tecnica = tecnicaRepository.findById(tecnicaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tecnica no encontrada"));
+
+        Utiliza utiliza = utilizaRepository.findByExperimentoIdAndTecnicaId(experimentoId, tecnicaId);
+        if (utiliza != null) {
+            utiliza.getImagenes().remove(imagen);
+            utilizaRepository.save(utiliza);
+        } else {
+            throw new UtilizaNotFoundException(experimentoId, tecnicaId);
+        }
+
+        return experimento;
+    }
+
 
 }

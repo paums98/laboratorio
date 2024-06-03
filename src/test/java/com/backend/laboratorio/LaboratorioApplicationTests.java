@@ -7,6 +7,7 @@ import com.backend.laboratorio.mappers.Experimento.ExperimentoMapper;
 import com.backend.laboratorio.mappers.Tecnica.TecnicaMapper;
 import com.backend.laboratorio.model.entity.Experimento;
 import com.backend.laboratorio.model.entity.Tecnica;
+import com.backend.laboratorio.model.entity.Utiliza;
 import com.backend.laboratorio.model.service.Experimento.IExperimentoService;
 import com.backend.laboratorio.model.service.Tecnica.ITecnicaService;
 import org.junit.jupiter.api.BeforeEach;
@@ -162,4 +163,89 @@ class LaboratorioApplicationTests {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$[0].id").value(1L));
 	}
+
+	@Test
+	void testAgregarTecnica() throws Exception {
+		Experimento experimento = new Experimento();
+		experimento.setId(1L);
+		ExperimentoDTO experimentoDTO = new ExperimentoDTO();
+		experimentoDTO.setId(1L);
+
+		when(experimentoService.agregarTecnica(1L, 1L)).thenReturn(experimento);
+		when(experimentoMapper.toDTO(experimento)).thenReturn(experimentoDTO);
+
+		mockMvc.perform(post("/api/experimentos/1/tecnicas/1"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(1L));
+	}
+
+	@Test
+	void testUpdateTecnica() throws Exception {
+		TecnicaDTO tecnicaDTO = new TecnicaDTO();
+		Tecnica tecnica = new Tecnica();
+		tecnica.setId(1L);
+
+		when(tecnicaMapper.fromDTO(any(TecnicaDTO.class))).thenReturn(tecnica);
+		when(tecnicaService.modifyTecnica(any(Long.class), any(Tecnica.class))).thenReturn(tecnica);
+
+		mockMvc.perform(put("/api/técnicas/1")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"id\": 1}"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(1L));
+	}
+
+	@Test
+	void testDeleteTecnica() throws Exception {
+		mockMvc.perform(delete("/api/tecnicas/1"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.mensaje").value("Técnica borrada correctamente"));
+	}
+
+	@Test
+	void testCreateUtiliza() throws Exception {
+		Utiliza utiliza = new Utiliza();
+		utiliza.setId(1L);
+		Utiliza newUtiliza = new Utiliza();
+		newUtiliza.setId(1L);
+
+		when(experimentoService.addUtiliza(any(Utiliza.class))).thenReturn(newUtiliza);
+
+		mockMvc.perform(post("/api/utiliza")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"id\": 1}"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(1L));
+	}
+
+	@Test
+	void testGetImagenesByExperimentoAndTecnica() throws Exception {
+		List<String> imagenes = Arrays.asList("imagen1.jpg", "imagen2.jpg");
+
+		when(experimentoService.getImagenesByExperimentoAndTecnica(1L, 1L)).thenReturn(imagenes);
+
+		mockMvc.perform(get("/api/imagenes")
+						.param("experimentoId", "1")
+						.param("tecnicaId", "1"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0]").value("imagen1.jpg"))
+				.andExpect(jsonPath("$[1]").value("imagen2.jpg"));
+	}
+
+	@Test
+	void testAgregarImagen() throws Exception {
+		Experimento experimento = new Experimento();
+		experimento.setId(1L);
+		ExperimentoDTO experimentoDTO = new ExperimentoDTO();
+		experimentoDTO.setId(1L);
+
+		when(experimentoService.agregarImagen(1L, 1L, "imagen.jpg")).thenReturn(experimento);
+		when(experimentoMapper.toDTO(experimento)).thenReturn(experimentoDTO);
+
+		mockMvc.perform(post("/api/experimentos/1/tecnicas/1/imagenes")
+						.param("imagen", "imagen.jpg"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(1L));
+	}
+
 }

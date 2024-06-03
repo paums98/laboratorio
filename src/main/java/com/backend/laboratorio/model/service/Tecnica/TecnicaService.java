@@ -1,5 +1,6 @@
 package com.backend.laboratorio.model.service.Tecnica;
 
+import com.backend.laboratorio.exception.Tecnica.TecnicaNotFoundException;
 import com.backend.laboratorio.model.entity.Tecnica;
 import com.backend.laboratorio.model.repository.ITecnicaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class TecnicaService implements ITecnicaService{
+public class TecnicaService implements ITecnicaService {
 
     @Autowired
     private ITecnicaRepository tecnicaRepository;
@@ -25,7 +26,7 @@ public class TecnicaService implements ITecnicaService{
 
     @Override
     public Tecnica findById(long id) {
-        return tecnicaRepository.findById(id).orElse(null);
+        return tecnicaRepository.findById(id).orElseThrow(() -> new TecnicaNotFoundException(id));
     }
 
     @Override
@@ -45,7 +46,7 @@ public class TecnicaService implements ITecnicaService{
     @Override
     public void deleteTecnica(long id) throws Exception {
 
-        Tecnica tecnica = tecnicaRepository.findById(id).orElseThrow(() -> new Exception("Error eliminar Técnica: "+id));
+        Tecnica tecnica = tecnicaRepository.findById(id).orElseThrow(() -> new Exception("Error eliminar Técnica: " + id));
 
         tecnicaRepository.delete(tecnica);
 

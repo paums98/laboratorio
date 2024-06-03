@@ -27,4 +27,6 @@ public interface IExperimentoService {
     public List<String> getImagenesByExperimentoAndTecnica(Long experimentoId, Long tecnicaId);
 
     public Experimento agregarImagen(Long experimentoId, Long tecnicaId, String imagen);
+
+    Experimento eliminarImagen(Long experimentoId, Long tecnicaId, String imagen) throws Exception;
 }

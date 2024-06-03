@@ -12,7 +12,9 @@ import com.backend.laboratorio.model.service.Tecnica.ITecnicaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -61,7 +63,7 @@ public class LaboratorioController {
     @Operation(summary = "Crea un nuevo experimento")
     @PostMapping("/experimentos")
     public ResponseEntity<Experimento> createExperimento(
-            @Parameter(description = "Datos del experimento a crear") @RequestBody ExperimentoDTO experimentoDTO) {
+            @Parameter(description = "Datos del experimento a crear") @Valid @RequestBody ExperimentoDTO experimentoDTO) {
         Experimento experimento = experimentoMapper.fromDTO(experimentoDTO);
         Experimento newExperimento = experimentoService.addExperimento(experimento);
         return new ResponseEntity<>(newExperimento, HttpStatus.OK);
@@ -132,7 +134,7 @@ public class LaboratorioController {
     @Operation(summary = "Crea una nueva técnica")
     @PostMapping("/tecnicas")
     public ResponseEntity<Tecnica> createTecnica(
-            @Parameter(description = "Datos de la técnica a crear") @RequestBody TecnicaDTO tecnicaDTO) {
+            @Parameter(description = "Datos de la técnica a crear") @Valid @RequestBody TecnicaDTO tecnicaDTO) {
         Tecnica tecnica = tecnicaMapper.fromDTO(tecnicaDTO);
         Tecnica newTecnica = tecnicaService.addTecnica(tecnica);
         return new ResponseEntity<>(newTecnica, HttpStatus.OK);
@@ -211,6 +213,30 @@ public class LaboratorioController {
         ExperimentoDTO experimentoDTO = experimentoMapper.toDTO(experimento);
         return new ResponseEntity<>(experimentoDTO, HttpStatus.OK);
     }
+
+    @Operation(summary = "Eliminar una imagen de un experimento y una técnica")
+    @DeleteMapping("/experimentos/{experimentoId}/tecnicas/{tecnicaId}/imagenes")
+    public ResponseEntity<Map<String, String>> eliminarImagen(
+            @Parameter(description = "ID del experimento") @PathVariable Long experimentoId,
+            @Parameter(description = "ID de la técnica") @PathVariable Long tecnicaId,
+            @Parameter(description = "URL de la imagen a eliminar") @RequestParam String imagen) {
+        try {
+            experimentoService.eliminarImagen(experimentoId, tecnicaId, imagen);
+            Map<String, String> response = new HashMap<>();
+            response.put("mensaje", "Imagen eliminada correctamente");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("mensaje", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("mensaje", "Error al eliminar la imagen");
+            response.put("detalle", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
 }
