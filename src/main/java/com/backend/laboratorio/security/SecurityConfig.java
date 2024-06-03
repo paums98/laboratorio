@@ -80,16 +80,21 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth ->
-                        auth.dispatcherTypeMatchers(FORWARD, ERROR).permitAll()
-                                .requestMatchers("/auth/**").permitAll()
-                                .requestMatchers("/swagger-ui/**").permitAll()
-                                .requestMatchers("/v3/api-docs/**").permitAll()
-                                .requestMatchers("/api/experimentos").hasAnyRole(ERole.INVESTIGADOR.name(), ERole.BECARIO.name(), ERole.ADMIN.name())
-                                .requestMatchers("/api/experimentos/**").hasAnyRole(ERole.ADMIN.name())
-                                //.requestMatchers(HttpMethod.POST, "/api/books/**").hasAnyRole(ERole.GUEST.name(), ERole.USER.name())
-                                .anyRequest().authenticated()
-                );
+                .authorizeHttpRequests(auth -> {
+                    auth.dispatcherTypeMatchers(FORWARD, ERROR).permitAll()
+                            .requestMatchers("/auth/**").permitAll()
+                            .requestMatchers("/swagger-ui/**").permitAll()
+                            .requestMatchers("/v3/api-docs/**").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/experimentos/**").hasAnyRole(ERole.BECARIO.name(), ERole.INVESTIGADOR.name(), ERole.ADMIN.name())
+                            .requestMatchers(HttpMethod.POST, "/api/experimentos").hasAnyRole(ERole.INVESTIGADOR.name(), ERole.ADMIN.name())
+                            .requestMatchers(HttpMethod.PUT, "/api/experimentos/**").hasAnyRole(ERole.INVESTIGADOR.name(), ERole.ADMIN.name())
+                            .requestMatchers(HttpMethod.DELETE, "/api/experimentos/**").hasRole(ERole.ADMIN.name())
+                            .requestMatchers(HttpMethod.GET, "/api/tecnicas/**").hasAnyRole(ERole.BECARIO.name(), ERole.INVESTIGADOR.name(), ERole.ADMIN.name())
+                            .requestMatchers(HttpMethod.POST, "/api/tecnicas/**").hasAnyRole(ERole.INVESTIGADOR.name(), ERole.ADMIN.name())
+                            .requestMatchers(HttpMethod.PUT, "/api/tecnicas/**").hasAnyRole(ERole.INVESTIGADOR.name(), ERole.ADMIN.name())
+                            .requestMatchers(HttpMethod.DELETE, "/api/tecnicas/**").hasRole(ERole.ADMIN.name())
+                            .anyRequest().authenticated();
+                });
 
         http.authenticationProvider(authenticationProvider);
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -102,14 +107,13 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of("http://localhost:8080"));
-        configuration.setAllowedMethods(List.of("GET","POST"));
-        configuration.setAllowedHeaders(List.of("Authorization","Content-Type"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
-        source.registerCorsConfiguration("/**",configuration);
+        source.registerCorsConfiguration("/**", configuration);
 
         return source;
     }
-
 }

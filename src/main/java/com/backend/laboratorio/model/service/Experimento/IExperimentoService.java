@@ -29,4 +29,7 @@ public interface IExperimentoService {
     public Experimento agregarImagen(Long experimentoId, Long tecnicaId, String imagen);
 
     Experimento eliminarImagen(Long experimentoId, Long tecnicaId, String imagen) throws Exception;
+
+    Utiliza findUtilizaByExperimentoIdAndTecnicaId(Long experimentoId, Long tecnicaId);
+    void deleteUtiliza(Long utilizaId);
 }

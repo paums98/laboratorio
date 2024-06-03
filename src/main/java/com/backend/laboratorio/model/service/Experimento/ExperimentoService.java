@@ -147,5 +147,15 @@ public class ExperimentoService implements IExperimentoService {
         return experimento;
     }
 
+    @Override
+    public Utiliza findUtilizaByExperimentoIdAndTecnicaId(Long experimentoId, Long tecnicaId) {
+        return utilizaRepository.findByExperimentoIdAndTecnicaId(experimentoId, tecnicaId);
+    }
+
+    @Override
+    public void deleteUtiliza(Long utilizaId) {
+        utilizaRepository.deleteById(utilizaId);
+    }
+
 
 }

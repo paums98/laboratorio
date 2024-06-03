@@ -191,6 +191,34 @@ public class LaboratorioController {
 
     }
 
+    // ELIMINAR RELACIÓN DE TÉCNICA Y USUARIO
+
+    @Operation(summary = "Elimina una relación entre un experimento y una técnica")
+    @DeleteMapping("/experimentos/{experimentoId}/tecnicas/{tecnicaId}")
+    public ResponseEntity<Map<String, String>> eliminarRelacionTecnicaExperimento(
+            @Parameter(description = "ID del experimento") @PathVariable Long experimentoId,
+            @Parameter(description = "ID de la técnica") @PathVariable Long tecnicaId) {
+        try {
+            Utiliza utiliza = experimentoService.findUtilizaByExperimentoIdAndTecnicaId(experimentoId, tecnicaId);
+            if (utiliza != null) {
+                experimentoService.deleteUtiliza(utiliza.getId());
+                Map<String, String> response = new HashMap<>();
+                response.put("mensaje", "Relación eliminada correctamente");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                Map<String, String> response = new HashMap<>();
+                response.put("mensaje", "Relación no encontrada");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("mensaje", "Error al eliminar la relación");
+            response.put("detalle", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
     // OBTENER IMÁGENES
     @Operation(summary = "Obtiene las imágenes de un experimento y una técnica")
     @GetMapping("/imagenes")
